@@ -37,7 +37,7 @@ namespace Vodovoz.ReportsParameters.Orders
             comboOrganization.ItemsList = organizations;
             comboOrganization.SetRenderTextFunc<Organization>(x => x.FullName);
             comboOrganization.Changed += (sender, e) => UpdateSensitivity();
-            comboOrganization.SelectedItem = organizations.Where(x => x.Id == reportDefaultsProvider.GetDefaultOrderChangesOrganizationId).FirstOrDefault();
+            comboOrganization.SelectedItem = organizations.FirstOrDefault(x => x.Id == reportDefaultsProvider.GetDefaultOrderChangesOrganizationId);
             ytreeviewChangeTypes.ColumnsConfig = FluentColumnsConfig<SelectedChangeTypeNode>.Create()
                 .AddColumn("✓").AddToggleRenderer(x => x.Selected)
                 .AddColumn("Тип").AddTextRenderer(x => x.Title)
@@ -105,7 +105,8 @@ namespace Vodovoz.ReportsParameters.Orders
                     { "organization_id", ordganizationId },
                     { "change_types", selectedChangeTypes },
                     { "change_types_rus", selectedChangeTypesTitles },
-                    { "issue_types", selectedIssueTypes },
+                    { "issue_type", "CashAndCashlessIssues" },
+                    { "sms_payment_from_id", 8 },
                     { "issue_types_rus", selectedIssueTypesTitles }
                 };
 

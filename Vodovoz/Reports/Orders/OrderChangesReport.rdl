@@ -675,7 +675,7 @@ Format(Convert.ToDateTime({time_delivered}), "HH:mm"))</Value>
       <Textbox Name="Textbox4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>15.04pt</Height>
         <Width>409.15pt</Width>
-        <Value>='Типы проблем: ' + {?issue_types_rus}</Value>
+        <Value>='Тип проблем: ' + {?issue_type_rus}</Value>
         <ZIndex>1</ZIndex>
         <Left>13.6pt</Left>
         <Top>88.8pt</Top>
@@ -801,7 +801,7 @@ FROM
                 INNER JOIN orders o ON o.id = hce.entity_id
                 AND hce.entity_class = 'Order'
                 AND hce.`datetime` &gt;= @start_date
-                AND hce.`datetime` &lt;= @end_date
+                AND hce.`datetime` &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
                 AND hce.operation = 'Change'		
 			INNER JOIN counterparty_contract cc ON cc.id = o.counterparty_contract_id 
 				AND cc.organization_id = @organization_id
@@ -833,7 +833,7 @@ FROM
 					INNER JOIN orders o_inner ON o_inner.id = hce_inner.entity_id
 						AND hce_inner.entity_class = 'Order'
 						AND hce_inner.`datetime` &gt;= @start_date
-                        AND hce_inner.`datetime` &lt;= @end_date
+                        AND hce_inner.`datetime` &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
 						AND hce_inner.operation = 'Change'		
 					INNER JOIN history_changes hc_inner ON hc_inner.chaged_entity_id = hce_inner.id		
 						AND hc_inner.`type` = 'Changed' 
@@ -901,7 +901,7 @@ FROM
         INNER JOIN order_items oi ON oi.id = hce.entity_id
         AND hce.entity_class = 'OrderItem'
         AND hce.`datetime` &gt;= @start_date
-        AND hce.`datetime` &lt;= @end_date
+        AND hce.`datetime` &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
         AND hce.operation IN ('Create','Change','Delete')		
 			INNER JOIN orders o ON o.id = oi.order_id
 			INNER JOIN counterparty_contract cc ON cc.id = o.counterparty_contract_id 
@@ -917,7 +917,7 @@ FROM
 					INNER JOIN orders o_inner ON o_inner.id = hce_inner.entity_id
 						AND hce_inner.entity_class = 'Order'
 						AND hce_inner.`datetime` &gt;= @start_date
-                        AND hce_inner.`datetime` &lt;= @end_date
+                        AND hce_inner.`datetime` &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
 						AND hce_inner.operation = 'Change'		
 					INNER JOIN history_changes hc_inner ON hc_inner.chaged_entity_id = hce_inner.id		
 						AND hc_inner.`type` = 'Changed' 
@@ -936,7 +936,7 @@ FROM
 					INNER JOIN orders o_pay_type ON o_pay_type.id = hce_pay_type.entity_id
 						AND hce_pay_type.entity_class = 'Order'
 						AND hce_pay_type.`datetime` &gt;= @start_date
-                        AND hce_pay_type.`datetime` &lt;= @end_date
+                        AND hce_pay_type.`datetime` &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
                     AND hce_pay_type.operation = 'Change'		
 					INNER JOIN history_changes hc_pay_type ON hc_pay_type.chaged_entity_id = hce_pay_type.id
 						AND hc_pay_type.`type` = 'Changed'
@@ -1151,7 +1151,7 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="issue_types_rus">
+    <ReportParameter Name="issue_type_rus">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>

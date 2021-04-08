@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Organizations;
 using Gamma.ColumnConfig;
+using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace Vodovoz.ReportsParameters.Orders
 {
@@ -16,12 +19,13 @@ namespace Vodovoz.ReportsParameters.Orders
     public partial class OrderChangesReport : SingleUoWWidgetBase, IParametersWidget
     {
         private List<SelectedChangeTypeNode> changeTypes = new List<SelectedChangeTypeNode>();
-        private List<SelectedIssueTypeNode> issueTypes = new List<SelectedIssueTypeNode>();
         private readonly IReportDefaultsProvider reportDefaultsProvider;
+        private readonly IOrderParametersProvider orderParametersProvider;
 
-        public OrderChangesReport(IReportDefaultsProvider reportDefaultsProvider)
+        public OrderChangesReport(IReportDefaultsProvider reportDefaultsProvider, IOrderParametersProvider orderParametersProvider)
         {
             this.reportDefaultsProvider = reportDefaultsProvider ?? throw new ArgumentNullException(nameof(reportDefaultsProvider));
+            this.orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
             this.Build();
             Configure();
         }
@@ -50,16 +54,7 @@ namespace Vodovoz.ReportsParameters.Orders
 
             ytreeviewChangeTypes.ItemsDataSource = changeTypes;
 
-            ytreeviewIssueTypes.ColumnsConfig = FluentColumnsConfig<SelectedIssueTypeNode>.Create()
-                .AddColumn("✓").AddToggleRenderer(x => x.Selected)
-                .AddColumn("Тип").AddTextRenderer(x => x.Title)
-                .Finish();
-
-            AddIssueType("Проблемы с смс", "SmsIssues");
-            AddIssueType("Проблемы с терминалами", "TerminalIssues");
-            AddIssueType("Проблемы менеджеров", "ManagersIssues");
-
-            ytreeviewIssueTypes.ItemsDataSource = issueTypes;
+            comboIssueType.ItemsEnum = typeof(IssueType);
         }
 
         private void AddChangeType(string title, string value)
@@ -70,16 +65,6 @@ namespace Vodovoz.ReportsParameters.Orders
             changeType.PropertyChanged += (sender, e) => UpdateSensitivity();
             changeType.Selected = true;
             changeTypes.Add(changeType);
-        }
-
-        private void AddIssueType(string title, string value)
-        {
-            var issueType = new SelectedIssueTypeNode();
-            issueType.Title = title;
-            issueType.Value = value;
-            issueType.PropertyChanged += (sender, e) => UpdateSensitivity();
-            issueType.Selected = true;
-            issueTypes.Add(issueType);
         }
 
         #region IParametersWidget implementation
@@ -94,9 +79,7 @@ namespace Vodovoz.ReportsParameters.Orders
         {
             var ordganizationId = ((Organization)comboOrganization.SelectedItem).Id;
             var selectedChangeTypes = string.Join(",", changeTypes.Where(x => x.Selected).Select(x => x.Value));
-            var selectedIssueTypes = changeTypes.Any(x => x.Selected && x.Value == "PaymentType") ? string.Empty : string.Join(",", issueTypes.Where(x => x.Selected).Select(x => x.Value));
             var selectedChangeTypesTitles = string.Join(", ", changeTypes.Where(x => x.Selected).Select(x => x.Title));
-            var selectedIssueTypesTitles = changeTypes.Any(x => x.Selected && x.Value == "PaymentType") ? string.Empty : string.Join(", ", issueTypes.Where(x => x.Selected).Select(x => x.Title));
 
             var parameters = new Dictionary<string, object>
                 {
@@ -105,9 +88,9 @@ namespace Vodovoz.ReportsParameters.Orders
                     { "organization_id", ordganizationId },
                     { "change_types", selectedChangeTypes },
                     { "change_types_rus", selectedChangeTypesTitles },
-                    { "issue_type", "CashAndCashlessIssues" },
-                    { "sms_payment_from_id", 8 },
-                    { "issue_types_rus", selectedIssueTypesTitles }
+                    { "issue_type", comboIssueType.SelectedItem },
+                    { "sms_payment_from_id", orderParametersProvider.PaymentByCardFromSmsId },
+                    { "issue_type_rus", ((IssueType)comboIssueType.SelectedItem).GetEnumTitle() }
                 };
 
             return new ReportInfo
@@ -123,7 +106,7 @@ namespace Vodovoz.ReportsParameters.Orders
             if (dateperiodpicker.StartDateOrNull == null
                 || (dateperiodpicker.StartDateOrNull != null && dateperiodpicker.StartDate >= DateTime.Now)
                 || comboOrganization.SelectedItem == null
-                || (!changeTypes.Any(x => x.Selected) && !issueTypes.Any(x => x.Selected))
+                || !changeTypes.Any(x => x.Selected)
                 ) {
                 return;
             }
@@ -131,17 +114,14 @@ namespace Vodovoz.ReportsParameters.Orders
             var reportInfo = GetReportInfo();
             LoadReport?.Invoke(this, new LoadReportEventArgs(reportInfo));
         }
-
-        private bool issuesSensitive => changeTypes.Any(x => x.Value == "PaymentType" && !x.Selected);
-
+        
         private void UpdateSensitivity()
         {
             bool hasValidDate = dateperiodpicker.StartDateOrNull != null && dateperiodpicker.StartDate < DateTime.Now;
             bool hasOrganization = comboOrganization.SelectedItem != null;
             bool hasChangeTypes = changeTypes.Any(x => x.Selected);
-            bool hasIssueTypes = issueTypes.Any(x => x.Selected);
-            buttonCreateReport.Sensitive = hasValidDate && hasOrganization && (hasChangeTypes || hasIssueTypes);
-            ytreeviewIssueTypes.Sensitive = issuesSensitive;
+            bool issueTypeSelected = comboIssueType.SelectedItem is IssueType;
+            buttonCreateReport.Sensitive = hasValidDate && hasOrganization && hasChangeTypes && issueTypeSelected;
         }
 
         private void UpdatePeriodMessage()
@@ -160,23 +140,21 @@ namespace Vodovoz.ReportsParameters.Orders
             UpdateSensitivity();
             UpdatePeriodMessage();
         }
+
+        public enum IssueType
+        {
+            [Display(Name = "Проблемы с нал. и безнал. оплатой")]
+            CashAndCashlessIssues,
+            [Display(Name = "Проблемы менеджеров")]
+            IssueManagers,
+            [Display(Name = "Проблемы с SMS")]
+            SmsIssues,
+            [Display(Name = "Проблемы с терминалами")]
+            TerminalIssues
+        }
     }
 
     public class SelectedChangeTypeNode : PropertyChangedBase
-    {
-        private bool selected;
-        public virtual bool Selected
-        {
-            get => selected;
-            set => SetField(ref selected, value);
-        }
-
-        public string Title { get; set; }
-
-        public string Value { get; set; }
-    }
-
-    public class SelectedIssueTypeNode : PropertyChangedBase
     {
         private bool selected;
         public virtual bool Selected

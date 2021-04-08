@@ -14,23 +14,19 @@ namespace Vodovoz.ReportsParameters.Orders
 
 		private global::Gamma.GtkWidgets.yLabel ylabelDateWarning;
 
-		private global::Gtk.HBox hboxOrganization;
+		private global::Gtk.Table table1;
 
-		private global::Gamma.GtkWidgets.yLabel ylabelOrganization;
+		private global::Gamma.Widgets.yEnumComboBox comboIssueType;
 
 		private global::Gamma.Widgets.ySpecComboBox comboOrganization;
 
-		private global::Gtk.HBox hboxChangeType;
-
 		private global::Gamma.GtkWidgets.yLabel ylabelChangeType;
 
+		private global::Gamma.GtkWidgets.yLabel ylabelIssueType;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelOrganization;
+
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewChangeTypes;
-
-		private global::Gtk.HBox hbox2;
-
-		private global::Gamma.GtkWidgets.yLabel ylabelIssuesType;
-
-		private global::Gamma.GtkWidgets.yTreeView ytreeviewIssueTypes;
 
 		private global::Gamma.GtkWidgets.yTextView ytextview1;
 
@@ -61,6 +57,7 @@ namespace Vodovoz.ReportsParameters.Orders
 			w1.Fill = false;
 			// Container child hboxDate.Gtk.Box+BoxChild
 			this.dateperiodpicker = new global::QS.Widgets.GtkUI.DateRangePicker();
+			this.dateperiodpicker.WidthRequest = 280;
 			this.dateperiodpicker.Events = ((global::Gdk.EventMask)(256));
 			this.dateperiodpicker.Name = "dateperiodpicker";
 			this.dateperiodpicker.StartDate = new global::System.DateTime(0);
@@ -68,6 +65,7 @@ namespace Vodovoz.ReportsParameters.Orders
 			this.hboxDate.Add(this.dateperiodpicker);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hboxDate[this.dateperiodpicker]));
 			w2.Position = 1;
+			w2.Expand = false;
 			this.vboxReport.Add(this.hboxDate);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vboxReport[this.hboxDate]));
 			w3.Position = 0;
@@ -86,87 +84,86 @@ namespace Vodovoz.ReportsParameters.Orders
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child vboxReport.Gtk.Box+BoxChild
-			this.hboxOrganization = new global::Gtk.HBox();
-			this.hboxOrganization.Name = "hboxOrganization";
-			this.hboxOrganization.Spacing = 6;
-			// Container child hboxOrganization.Gtk.Box+BoxChild
-			this.ylabelOrganization = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelOrganization.Name = "ylabelOrganization";
-			this.ylabelOrganization.LabelProp = global::Mono.Unix.Catalog.GetString("Организация:");
-			this.hboxOrganization.Add(this.ylabelOrganization);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hboxOrganization[this.ylabelOrganization]));
-			w5.Position = 0;
-			w5.Expand = false;
-			w5.Fill = false;
-			// Container child hboxOrganization.Gtk.Box+BoxChild
+			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(2)), false);
+			this.table1.Name = "table1";
+			this.table1.RowSpacing = ((uint)(6));
+			this.table1.ColumnSpacing = ((uint)(6));
+			// Container child table1.Gtk.Table+TableChild
+			this.comboIssueType = new global::Gamma.Widgets.yEnumComboBox();
+			this.comboIssueType.Name = "comboIssueType";
+			this.comboIssueType.ShowSpecialStateAll = false;
+			this.comboIssueType.ShowSpecialStateNot = false;
+			this.comboIssueType.UseShortTitle = false;
+			this.comboIssueType.DefaultFirst = true;
+			this.table1.Add(this.comboIssueType);
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.comboIssueType]));
+			w5.TopAttach = ((uint)(2));
+			w5.BottomAttach = ((uint)(3));
+			w5.LeftAttach = ((uint)(1));
+			w5.RightAttach = ((uint)(2));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.comboOrganization = new global::Gamma.Widgets.ySpecComboBox();
 			this.comboOrganization.Name = "comboOrganization";
 			this.comboOrganization.AddIfNotExist = false;
 			this.comboOrganization.DefaultFirst = false;
 			this.comboOrganization.ShowSpecialStateAll = false;
 			this.comboOrganization.ShowSpecialStateNot = false;
-			this.hboxOrganization.Add(this.comboOrganization);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxOrganization[this.comboOrganization]));
-			w6.Position = 1;
-			w6.Expand = false;
-			w6.Fill = false;
-			this.vboxReport.Add(this.hboxOrganization);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vboxReport[this.hboxOrganization]));
-			w7.Position = 2;
-			w7.Expand = false;
-			w7.Fill = false;
-			// Container child vboxReport.Gtk.Box+BoxChild
-			this.hboxChangeType = new global::Gtk.HBox();
-			this.hboxChangeType.Name = "hboxChangeType";
-			this.hboxChangeType.Spacing = 6;
-			// Container child hboxChangeType.Gtk.Box+BoxChild
+			this.table1.Add(this.comboOrganization);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.comboOrganization]));
+			w6.LeftAttach = ((uint)(1));
+			w6.RightAttach = ((uint)(2));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.ylabelChangeType = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelChangeType.Name = "ylabelChangeType";
-			this.ylabelChangeType.Yalign = 0F;
+			this.ylabelChangeType.Xalign = 1F;
 			this.ylabelChangeType.LabelProp = global::Mono.Unix.Catalog.GetString("Типы изменений:");
-			this.hboxChangeType.Add(this.ylabelChangeType);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hboxChangeType[this.ylabelChangeType]));
-			w8.Position = 0;
-			w8.Expand = false;
-			w8.Fill = false;
-			// Container child hboxChangeType.Gtk.Box+BoxChild
+			this.table1.Add(this.ylabelChangeType);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelChangeType]));
+			w7.TopAttach = ((uint)(1));
+			w7.BottomAttach = ((uint)(2));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.ylabelIssueType = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelIssueType.Name = "ylabelIssueType";
+			this.ylabelIssueType.Xalign = 1F;
+			this.ylabelIssueType.LabelProp = global::Mono.Unix.Catalog.GetString("Тип проблем:");
+			this.table1.Add(this.ylabelIssueType);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelIssueType]));
+			w8.TopAttach = ((uint)(2));
+			w8.BottomAttach = ((uint)(3));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.ylabelOrganization = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelOrganization.Name = "ylabelOrganization";
+			this.ylabelOrganization.Xalign = 1F;
+			this.ylabelOrganization.LabelProp = global::Mono.Unix.Catalog.GetString("Организация:");
+			this.table1.Add(this.ylabelOrganization);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelOrganization]));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.ytreeviewChangeTypes = new global::Gamma.GtkWidgets.yTreeView();
 			this.ytreeviewChangeTypes.CanFocus = true;
 			this.ytreeviewChangeTypes.Name = "ytreeviewChangeTypes";
-			this.hboxChangeType.Add(this.ytreeviewChangeTypes);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hboxChangeType[this.ytreeviewChangeTypes]));
-			w9.Position = 1;
-			this.vboxReport.Add(this.hboxChangeType);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vboxReport[this.hboxChangeType]));
-			w10.Position = 3;
-			w10.Expand = false;
-			w10.Fill = false;
-			// Container child vboxReport.Gtk.Box+BoxChild
-			this.hbox2 = new global::Gtk.HBox();
-			this.hbox2.Name = "hbox2";
-			this.hbox2.Spacing = 6;
-			// Container child hbox2.Gtk.Box+BoxChild
-			this.ylabelIssuesType = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelIssuesType.Name = "ylabelIssuesType";
-			this.ylabelIssuesType.Yalign = 0F;
-			this.ylabelIssuesType.LabelProp = global::Mono.Unix.Catalog.GetString("Типы проблем:");
-			this.hbox2.Add(this.ylabelIssuesType);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.ylabelIssuesType]));
-			w11.Position = 0;
+			this.table1.Add(this.ytreeviewChangeTypes);
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.ytreeviewChangeTypes]));
+			w10.TopAttach = ((uint)(1));
+			w10.BottomAttach = ((uint)(2));
+			w10.LeftAttach = ((uint)(1));
+			w10.RightAttach = ((uint)(2));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.vboxReport.Add(this.table1);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxReport[this.table1]));
+			w11.Position = 2;
 			w11.Expand = false;
 			w11.Fill = false;
-			// Container child hbox2.Gtk.Box+BoxChild
-			this.ytreeviewIssueTypes = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeviewIssueTypes.CanFocus = true;
-			this.ytreeviewIssueTypes.Name = "ytreeviewIssueTypes";
-			this.hbox2.Add(this.ytreeviewIssueTypes);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.ytreeviewIssueTypes]));
-			w12.Position = 1;
-			this.vboxReport.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vboxReport[this.hbox2]));
-			w13.Position = 4;
-			w13.Expand = false;
-			w13.Fill = false;
 			// Container child vboxReport.Gtk.Box+BoxChild
 			this.ytextview1 = new global::Gamma.GtkWidgets.yTextView();
 			this.ytextview1.Buffer.Text = global::Mono.Unix.Catalog.GetString("Описание:\nВ отчет попадает информация об изменении полей заказа \nи товаров заказа" +
@@ -176,10 +173,10 @@ namespace Vodovoz.ReportsParameters.Orders
 			this.ytextview1.Name = "ytextview1";
 			this.ytextview1.Editable = false;
 			this.vboxReport.Add(this.ytextview1);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vboxReport[this.ytextview1]));
-			w14.Position = 5;
-			w14.Expand = false;
-			w14.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vboxReport[this.ytextview1]));
+			w12.Position = 3;
+			w12.Expand = false;
+			w12.Fill = false;
 			// Container child vboxReport.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.Sensitive = false;
@@ -188,11 +185,11 @@ namespace Vodovoz.ReportsParameters.Orders
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vboxReport.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vboxReport[this.buttonCreateReport]));
-			w15.PackType = ((global::Gtk.PackType)(1));
-			w15.Position = 7;
-			w15.Expand = false;
-			w15.Fill = false;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vboxReport[this.buttonCreateReport]));
+			w13.PackType = ((global::Gtk.PackType)(1));
+			w13.Position = 5;
+			w13.Expand = false;
+			w13.Fill = false;
 			this.Add(this.vboxReport);
 			if ((this.Child != null))
 			{

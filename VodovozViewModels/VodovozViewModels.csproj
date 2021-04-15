@@ -200,6 +200,7 @@
     <Compile Include="ViewModels\Logistic\DistrictsSetViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DriverDistrictPriorityNode.cs" />
     <Compile Include="ViewModels\Logistic\DriverDistrictPrioritySetViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\DriverUnscheduledAbsenceViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DriverWorkScheduleNode.cs" />
     <Compile Include="ViewModels\Logistic\DriverWorkScheduleSetViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DistrictViewModel.cs" />

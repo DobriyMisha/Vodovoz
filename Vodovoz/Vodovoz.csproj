@@ -399,6 +399,8 @@
     <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="Filters\ViewModels\ProductGroupFilterViewModel.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.OrderChangesReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarRepairScheduleView.cs" />
+    <Compile Include="Infrastructure\Converters\NullableBoolToAllYesNoConverter.cs" />
     <Compile Include="JournalNodes\RetailCounterpartyJournalNode.cs" />
     <Compile Include="JournalNodes\OrderForRouteListJournalNode.cs" />
     <Compile Include="JournalNodes\RetailOrderJournalNode.cs" />
@@ -1586,6 +1588,11 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Retail.QualityReport.cs" />
     <Compile Include="ReportsParameters\Retail\CounterpartyReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Retail.CounterpartyReport.cs" />
+    <Compile Include="Views\Logistic\CarRepairScheduleView.cs" />
+    <Compile Include="Views\Logistic\BreakdownKindView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.BreakdownKindView.cs" />
+    <Compile Include="Filters\GtkViews\BreakdownKindJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.BreakdownKindJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

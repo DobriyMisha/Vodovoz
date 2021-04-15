@@ -2080,6 +2080,19 @@ public partial class MainWindow : Gtk.Window
                 ServicesConfig.InteractiveService))
         );
     }
+    
+    protected void OnActionBreakdownKindsActivated(object sender, EventArgs e)
+    {
+        var filter = new BreakdownKindJournalFilterViewModel();
+
+        tdiMain.AddTab(
+            new BreakdownKindJournalViewModel(
+                filter,
+                UnitOfWorkFactory.GetDefaultFactory,
+                ServicesConfig.CommonServices
+            )
+        );
+    }
 
     protected void OnActionDriverCarKindActivated(object sender, EventArgs e)
     {

@@ -245,18 +245,26 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Группа района")]
 		public virtual IList<GeographicGroup> GeographicGroups {
 			get => geographicGroups;
-			set => SetField(ref geographicGroups, value, () => GeographicGroups);
+			set => SetField(ref geographicGroups, value);
 		}
 
 		GenericObservableList<GeographicGroup> observableGeographicGroups;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<GeographicGroup> ObservableGeographicGroups {
-			get {
-				if(observableGeographicGroups == null)
-					observableGeographicGroups = new GenericObservableList<GeographicGroup>(GeographicGroups);
-				return observableGeographicGroups;
-			}
+		public virtual GenericObservableList<GeographicGroup> ObservableGeographicGroups =>
+			observableGeographicGroups ?? (observableGeographicGroups =
+				new GenericObservableList<GeographicGroup>(GeographicGroups));
+
+		private IList<CarRepairSchedule> carRepairSchedules = new List<CarRepairSchedule>();
+		[Display(Name = "График ремонтов автомобиля")]
+		public virtual IList<CarRepairSchedule> CarRepairSchedules {
+			get => carRepairSchedules;
+			set => SetField(ref carRepairSchedules, value);
 		}
+
+		private GenericObservableList<CarRepairSchedule> observableCarRepairSchedules;
+		public virtual GenericObservableList<CarRepairSchedule> ObservableCarRepairSchedules =>
+			observableCarRepairSchedules ?? (observableCarRepairSchedules =
+				new GenericObservableList<CarRepairSchedule>(CarRepairSchedules));
 
 		#endregion
 

@@ -15,13 +15,18 @@ using QS.Project.Services;
 using Vodovoz.EntityRepositories.Logistic;
 using QS.Dialog.GtkUI;
 using QS.Project.Journal.EntitySelector;
+using QS.Services;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.ViewModels.Logistic;
+using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz
 {
 	public partial class CarsDlg : QS.Dialog.Gtk.EntityDialogBase<Car>
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+		private static readonly Gdk.Color colorGreen = new Gdk.Color(0, 200, 100);
+		private static readonly Gdk.Color colorBlack = new Gdk.Color(0, 0, 0);
 
 		private ICarRepository carRepository;
 
@@ -151,8 +156,128 @@ namespace Vodovoz
 				.Finish();
 			yTreeGeographicGroups.ItemsDataSource = Entity.ObservableGeographicGroups;
 
+			ConfigureCarRepairSchedules();
+			
 			UpdateSensitivity();
 		}
+
+		#region RepairSchedules
+
+		private IPermissionResult carRepairSchedulePermissionResult;
+		private void ConfigureCarRepairSchedules()
+		{
+			carRepairSchedulePermissionResult =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(CarRepairSchedule));
+
+			ytreeRepairSchedules.ColumnsConfig = FluentColumnsConfig<CarRepairSchedule>.Create()
+				.AddColumn("Код")
+					.HeaderAlignment(0.5f)
+					.MinWidth(75)
+					.AddTextRenderer(x => x.Id == 0 ? "Новый" : x.Id.ToString())
+					.XAlign(0.5f)
+					.AddSetter((c, n) => {
+						c.ForegroundGdk = n.Id == 0 ? colorGreen : colorBlack;
+					})
+				.AddColumn("Период")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(
+						x => x.StartDate == x.EndDate ? $"{x.StartDate:d}" : $"{x.StartDate:d} - {x.EndDate:d}")
+					.XAlign(0.5f)
+				.AddColumn("Вид поломки")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.BreakdownKind != null ? x.BreakdownKind.Name : "-")
+					.XAlign(0.5f)
+				.AddColumn("Комментарий")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.Comment)
+					.WrapWidth(700)
+					.WrapMode(WrapMode.WordChar)
+				.AddColumn("")
+				.Finish();
+
+			ytreeRepairSchedules.RowActivated += (o, args) => {
+				if(ytreeRepairSchedules.GetSelectedObject() != null
+					&& (carRepairSchedulePermissionResult.CanUpdate || carRepairSchedulePermissionResult.CanRead)) {
+					OpenRepairScheduleEditDialog();
+				}
+			};
+			
+			ytreeRepairSchedules.ItemsDataSource = Entity.ObservableCarRepairSchedules;
+
+			ybuttonDeleteRepairSchedule.Sensitive = false;
+			ybuttonDeleteRepairSchedule.Clicked += OnButtonDeleteRepairScheduleClicked;
+			
+			ybuttonEditRepairSchedule.Sensitive = false;
+			ybuttonEditRepairSchedule.Clicked += (sender, args) => OpenRepairScheduleEditDialog();
+			
+			ytreeRepairSchedules.Selection.Changed += (o, args) => {
+				var selectedRepairSchedule = ytreeRepairSchedules.GetSelectedObject<CarRepairSchedule>();
+
+				ybuttonDeleteRepairSchedule.Sensitive =
+					selectedRepairSchedule != null
+					&& (
+						carRepairSchedulePermissionResult.CanCreate && selectedRepairSchedule.Id == 0
+						|| carRepairSchedulePermissionResult.CanDelete
+					);
+
+				ybuttonEditRepairSchedule.Sensitive = selectedRepairSchedule != null
+					&& (carRepairSchedulePermissionResult.CanUpdate || carRepairSchedulePermissionResult.CanRead);
+			};
+
+			ybuttonAddRepairSchedule.Clicked += (sender, args) => OpenRepairScheduleCreateDialog();
+			ybuttonAddRepairSchedule.Sensitive = carRepairSchedulePermissionResult.CanCreate;
+		}
+
+		private void OnButtonDeleteRepairScheduleClicked(object sender, EventArgs args)
+		{
+			if(!(ytreeRepairSchedules.GetSelectedObject() is CarRepairSchedule carRepairSchedule)) {
+				return;
+			}
+
+			if(carRepairSchedule.Id == 0) {
+				Entity.ObservableCarRepairSchedules.Remove(carRepairSchedule);
+			}
+			else {
+				Entity.ObservableCarRepairSchedules.Remove(carRepairSchedule);
+				UoW.Delete(carRepairSchedule);
+			}
+		}
+
+		private void OpenRepairScheduleCreateDialog()
+		{
+			var newCarRepairSchedule = new CarRepairSchedule {
+				Car = Entity
+			};
+
+			var carRepairScheduleViewModel = new CarRepairScheduleViewModel(
+				newCarRepairSchedule,
+				UoW,
+				new ObjectValidator(new GtkValidationViewFactory()),
+				ServicesConfig.CommonServices
+			);
+			carRepairScheduleViewModel.EntityAccepted += (o, eventArgs) => {
+				Entity.ObservableCarRepairSchedules.Insert(0, newCarRepairSchedule);
+			};
+
+			TabParent.AddSlaveTab(this, carRepairScheduleViewModel);
+		}
+
+		private void OpenRepairScheduleEditDialog()
+		{
+			if(!(ytreeRepairSchedules.GetSelectedObject() is CarRepairSchedule carRepairSchedule)) {
+				return;
+			}
+
+			var carRepairScheduleViewModel = new CarRepairScheduleViewModel(
+				carRepairSchedule,
+				UoW,
+				new ObjectValidator(new GtkValidationViewFactory()),
+				ServicesConfig.CommonServices
+			);
+			TabParent.AddSlaveTab(this, carRepairScheduleViewModel);
+		}
+		
+		#endregion
 
 		bool CarTypeIsEditable() => Entity.Id == 0;
 

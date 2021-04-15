@@ -81,6 +81,16 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 			
+			//BreakdownKindJournalViewModel
+			TreeViewColumnsConfigFactory.Register<BreakdownKindJournalViewModel>(
+				() => FluentColumnsConfig<BreakdownKindNode>.Create()
+					.AddColumn("Код").AddTextRenderer(n => n.Id.ToString())
+					.AddColumn("Название").AddTextRenderer(n => n.Name)
+					.AddColumn("Архивный").AddTextRenderer(n => n.IsArchive ? "Да" : "Нет")
+					.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
+					.Finish()
+			);
+			
 			//OrderJournalViewModel
 			TreeViewColumnsConfigFactory.Register<OrderJournalViewModel>(
 				() => FluentColumnsConfig<OrderJournalNode>.Create()

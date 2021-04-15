@@ -8,7 +8,7 @@ namespace Vodovoz.Domain.Logistic
     [Appellative(Gender = GrammaticalGender.Masculine,
         Nominative = "внеплановый выход из графика",
         NominativePlural = "внеплановые выходы из графика")]
-    public class DriverUncheduledAbsence : PropertyChangedBase, IDomainObject, IValidatableObject
+    public class DriverUnscheduledAbsence : PropertyChangedBase, IDomainObject, IValidatableObject
     {
         public virtual int Id { get; set; }
 
@@ -26,11 +26,11 @@ namespace Vodovoz.Domain.Logistic
             set => SetField(ref comment, value);
         }
 
-        private UncheduledAbsenceReason uncheduledAbsenceReason;
+        private UnscheduledAbsenceReason unscheduledAbsenceReason;
         [Display(Name = "Причина")]
-        public virtual UncheduledAbsenceReason UncheduledAbsenceReason {
-            get => uncheduledAbsenceReason;
-            set => SetField(ref uncheduledAbsenceReason, value);
+        public virtual UnscheduledAbsenceReason UnscheduledAbsenceReason {
+            get => unscheduledAbsenceReason;
+            set => SetField(ref unscheduledAbsenceReason, value);
         }
 
         public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -39,16 +39,16 @@ namespace Vodovoz.Domain.Logistic
         }
     }
 
-    public enum UncheduledAbsenceReason
+    public enum UnscheduledAbsenceReason
     {
         [Display(Name = "Внеплановый выходной")]
-        UncheduleDayOff,
+        UnscheduledDayOff,
         [Display(Name = "Болезнь")]
         Sickness
     }
 
-    public class UncheduledAbsenceReasonStringType : NHibernate.Type.EnumStringType
+    public class UnscheduledAbsenceReasonStringType : NHibernate.Type.EnumStringType
     {
-        public UncheduledAbsenceReasonStringType() : base(typeof(UncheduledAbsenceReason)) { }
+        public UnscheduledAbsenceReasonStringType() : base(typeof(UnscheduledAbsenceReason)) { }
     }
 }

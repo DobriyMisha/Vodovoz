@@ -33,15 +33,7 @@ namespace Vodovoz.Domain.Logistic
             get => daySchedule;
             set => SetField(ref daySchedule, value);
         }
-        
-        //FIXME Удалить после обновления
-        private Employee driver;
-        [Display(Name = "Водитель")]
-        public virtual Employee Driver {
-            get => driver;
-            set => SetField(ref driver, value);
-        }
-        
+
         public virtual object Clone()
         {
             return new DriverWorkSchedule {

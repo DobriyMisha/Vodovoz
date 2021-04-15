@@ -14,10 +14,6 @@ namespace Vodovoz.HibernateMapping
             Map(x => x.Priority).Column("priority");
 
             References(x => x.District).Column("district_id");
-            
-            //FIXME Удалить после обновления
-            References(x => x.Driver).Column("driver_id");
-            
             References(x => x.DriverDistrictPrioritySet).Column("driver_district_priority_set_id");
         }
     }

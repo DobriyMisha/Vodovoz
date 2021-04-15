@@ -15,10 +15,6 @@ namespace Vodovoz.HibernateMapping.Logistic
 			Map(x => x.WeekDay).Column("week_day").CustomType<WeekDayNameStringType>();
 			
 			References(x => x.DriverWorkScheduleSet).Column("driver_work_schedule_set_id");
-			
-			//FIXME Удалить после обновления
-			References(x => x.Driver).Column("employee_id");
-			
 			References(x => x.DaySchedule).Column("delivery_day_schedule_id");
 		}
 	}

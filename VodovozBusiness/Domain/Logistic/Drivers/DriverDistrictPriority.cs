@@ -22,14 +22,6 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref district, value);
 		}
 
-		//FIXME Удалить после обновления
-		private Employee driver;
-		[Display(Name = "Водитель")]
-		public virtual Employee Driver {
-			get => driver;
-			set => SetField(ref driver, value);
-		}
-
 		private int priority;
 		[Display(Name = "Приоритет")]
 		public virtual int Priority {

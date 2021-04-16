@@ -318,7 +318,6 @@
     <Folder Include="TempAdapters\" />
     <Folder Include="Infrastructure\InfoProviders\" />
     <Folder Include="ViewModels\Organization\" />
-    <Folder Include="ViewModels\Payments" />
     <Folder Include="ViewModels\WageCalculation\" />
     <Folder Include="ViewModels\WageCalculation\AdvancedWageParametersViewModels\" />
     <Folder Include="ViewModels\Warehouses\" />
@@ -338,7 +337,6 @@
     <Folder Include="Journals\Nodes\" />
     <Folder Include="Journals\Nodes\Cash\" />
     <Folder Include="ViewModels\Goods\" />
-    <Folder Include="ViewModels\Payments\" />
     <Folder Include="ViewModels\Counterparty\" />
   </ItemGroup>
   <ItemGroup>

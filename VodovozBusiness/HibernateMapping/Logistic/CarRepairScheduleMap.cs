@@ -7,7 +7,7 @@ namespace Vodovoz.HibernateMapping.Logistic
     {
         public CarRepairScheduleMap()
         {
-            Table("car_breakdown_schedule");
+            Table("car_repair_schedules");
 
             Id(x => x.Id).Column("id").GeneratedBy.Native();
 

@@ -1,7 +1,5 @@
-﻿using System.Linq;
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gtk;
-using QS.Dialog.GtkUI;
 using QS.Navigation;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Logistic;

@@ -240,6 +240,7 @@ namespace Vodovoz
 
 			ConfigureWorkSchedules();
 			ConfigureDistrictPriorities();
+			ConfigureDriverUnscheduledAbsences();
 			
 			ytreeviewEmployeeDocument.ColumnsConfig = FluentColumnsConfig<EmployeeDocument>.Create()
 				.AddColumn("Документ").AddTextRenderer(x => x.Document.GetEnumTitle())
@@ -556,6 +557,120 @@ namespace Vodovoz
 			};
 			
 			TabParent.AddSlaveTab(this, driverWorkScheduleSetViewModel);
+		}
+
+		#endregion
+
+		#region ConfigureDriverUnscheduledAbsences
+
+		private IPermissionResult driverUnscheduledAbsencePermission;
+		
+		private void ConfigureDriverUnscheduledAbsences()
+		{
+			driverUnscheduledAbsencePermission =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(
+					typeof(DriverUnscheduledAbsence));
+			
+			ytreeUnsheduledAbsences.ColumnsConfig = FluentColumnsConfig<DriverUnscheduledAbsence>.Create()
+				.AddColumn("Код")
+					.HeaderAlignment(0.5f)
+					.MinWidth(75)
+					.AddTextRenderer(x => x.Id == 0 ? "Новый" : x.Id.ToString())
+					.XAlign(0.5f)
+				.AddColumn("Дата")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.DateTime.ToString("d"))
+				.AddColumn("Причина")
+					.HeaderAlignment(0.5f)
+					.AddEnumRenderer(x => x.UnscheduledAbsenceReason)
+					.XAlign(0.5f)
+				.AddColumn("Комментарий")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.Comment)
+					.WrapWidth(700)
+					.WrapMode(Pango.WrapMode.WordChar)
+				.AddColumn("")
+				.Finish();
+
+			ytreeUnsheduledAbsences.RowActivated += (o, args) => {
+				if(ytreeUnsheduledAbsences.GetSelectedObject() != null 
+					&& (driverUnscheduledAbsencePermission.CanUpdate || driverUnscheduledAbsencePermission.CanRead)) {
+					OpenDriverUnscheduledAbsenceEditWindow();
+				}
+			};
+			ytreeUnsheduledAbsences.ItemsDataSource = Entity.ObservableDriverUnscheduledAbsences;
+			
+			ybuttonDeleteUnscheduledAbsence.Sensitive = false;
+			ybuttonDeleteUnscheduledAbsence.Clicked += OnButtonDeleteUnscheduledAbsenceClicked;
+
+			ybuttonEditUnscheduledAbsence.Sensitive = false;
+			ybuttonEditUnscheduledAbsence.Clicked += (sender, args) => OpenDriverUnscheduledAbsenceEditWindow();
+
+			ytreeUnsheduledAbsences.Selection.Changed += (o, args) => {
+				var selectedAbsence = ytreeUnsheduledAbsences.GetSelectedObject<DriverUnscheduledAbsence>();
+				
+				ybuttonDeleteUnscheduledAbsence.Sensitive =
+					selectedAbsence != null
+					&& (
+						driverUnscheduledAbsencePermission.CanCreate && selectedAbsence.Id == 0
+						|| driverUnscheduledAbsencePermission.CanDelete
+					);
+				
+				ybuttonEditUnscheduledAbsence.Sensitive = selectedAbsence != null
+					&& (driverUnscheduledAbsencePermission.CanUpdate || driverUnscheduledAbsencePermission.CanRead);
+			};
+
+			ybuttonCreateUnscheduledAbsence.Clicked += (sender, args) => OpenDriverUnscheduledAbsenceCreateWindow();
+			ybuttonCreateUnscheduledAbsence.Sensitive = driverUnscheduledAbsencePermission.CanCreate;
+		}
+		
+		private void OnButtonDeleteUnscheduledAbsenceClicked(object sender, EventArgs args)
+		{
+			if(!(ytreeUnsheduledAbsences.GetSelectedObject() is DriverUnscheduledAbsence driverUnscheduledAbsence)) {
+				return;
+			}
+
+			if(driverUnscheduledAbsence.Id == 0) {
+				Entity.ObservableDriverUnscheduledAbsences.Remove(driverUnscheduledAbsence);
+			}
+			else {
+				Entity.ObservableDriverUnscheduledAbsences.Remove(driverUnscheduledAbsence);
+				UoW.Delete(driverUnscheduledAbsence);
+			}
+		}
+
+		private void OpenDriverUnscheduledAbsenceEditWindow()
+		{
+			if(!(ytreeUnsheduledAbsences.GetSelectedObject() is DriverUnscheduledAbsence driverUnscheduledAbsence)) {
+				return;
+			}
+				
+			var driverUnscheduledAbsenceViewModel = new DriverUnscheduledAbsenceViewModel(
+				driverUnscheduledAbsence,
+				UoW,
+				new ObjectValidator(new GtkValidationViewFactory()),
+				ServicesConfig.CommonServices
+			);
+			TabParent.AddSlaveTab(this, driverUnscheduledAbsenceViewModel);
+		}
+		
+		private void OpenDriverUnscheduledAbsenceCreateWindow()
+		{
+			var newDriverUnscheduledAbsence = new DriverUnscheduledAbsence {
+				Driver = Entity
+			};
+			
+			var driverUnscheduledAbsenceViewModel = new DriverUnscheduledAbsenceViewModel(
+				newDriverUnscheduledAbsence,
+				UoW,
+				new ObjectValidator(new GtkValidationViewFactory()),
+				ServicesConfig.CommonServices
+			);
+			driverUnscheduledAbsenceViewModel.EntityAccepted += (o, eventArgs) => {
+				Entity.ObservableDriverUnscheduledAbsences.Add(newDriverUnscheduledAbsence);
+			};
+			
+			TabParent.AddSlaveTab(this, driverUnscheduledAbsenceViewModel);
 		}
 
 		#endregion

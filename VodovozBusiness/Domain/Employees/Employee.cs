@@ -250,7 +250,7 @@ namespace Vodovoz.Domain.Employees
 
 		#endregion
 
-		#region ObservableDriverWorkScheduleSets
+		#region DriverWorkScheduleSets
 
 		private IList<DriverWorkScheduleSet> driverWorkScheduleSets = new List<DriverWorkScheduleSet>();
 		[Display(Name = "Версии графиков работы водителя")]
@@ -265,6 +265,24 @@ namespace Vodovoz.Domain.Employees
 				new GenericObservableList<DriverWorkScheduleSet>(DriverWorkScheduleSets));
 
 		#endregion
+		
+		#region DriverUnscheduledAbsences
+
+		private IList<DriverUnscheduledAbsence> driverUnscheduledAbsences = new List<DriverUnscheduledAbsence>();
+		[Display(Name = "Внеплановые выходы из графика водителя")]
+		public virtual IList<DriverUnscheduledAbsence> DriverUnscheduledAbsences {
+			get => driverUnscheduledAbsences;
+			set => SetField(ref driverUnscheduledAbsences, value);
+		}
+
+		private GenericObservableList<DriverUnscheduledAbsence> observableDriverUnscheduledAbsences;
+		public virtual GenericObservableList<DriverUnscheduledAbsence> ObservableDriverUnscheduledAbsences
+			=> observableDriverUnscheduledAbsences ?? (observableDriverUnscheduledAbsences =
+				new GenericObservableList<DriverUnscheduledAbsence>(DriverUnscheduledAbsences));
+
+		#endregion
+
+		#region WageParameters
 
 		IList<EmployeeWageParameter> wageParameters = new List<EmployeeWageParameter>();
 		[Display(Name = "Параметры расчета зарплаты")]
@@ -282,6 +300,8 @@ namespace Vodovoz.Domain.Employees
 				return observableWageParameters;
 			}
 		}
+
+		#endregion
 
 		bool visitingMaster;
 		[Display(Name = "Выездной мастер")]

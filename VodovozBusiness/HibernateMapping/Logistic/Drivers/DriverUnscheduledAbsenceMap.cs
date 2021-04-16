@@ -11,9 +11,11 @@ namespace Vodovoz.HibernateMapping.Logistic.Drivers
 
             Id(x => x.Id).Column("id").GeneratedBy.Native();
 
-            Map(x => x.DateTime).Column("date_time");
+            Map(x => x.DateTime).Column("datetime");
             Map(x => x.UnscheduledAbsenceReason).Column("reason").CustomType<UnscheduledAbsenceReasonStringType>();
             Map(x => x.Comment).Column("comment");
+
+            References(x => x.Driver).Column("driver_id");
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -32,10 +33,36 @@ namespace Vodovoz.Domain.Logistic
             get => unscheduledAbsenceReason;
             set => SetField(ref unscheduledAbsenceReason, value);
         }
+        
+        private Employee driver;
+        [Display(Name = "Водитель")]
+        public virtual Employee Driver {
+            get => driver;
+            set => SetField(ref driver, value);
+        }
 
         public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            throw new System.NotImplementedException();
+            if(Comment?.Length > 255) {
+                yield return new ValidationResult(
+                    "Длина комментария не должна превышать 255 символов",
+                    new[] { nameof(Comment) });
+            }
+
+            if(Driver == null) {
+                yield return new ValidationResult(
+                    "Должен быть заполнен водитель",
+                    new[] { nameof(Car) });
+            }
+
+            // validationContext.Items.TryGetValue("ExcludeScheduleValidation", out var excludeSchedule);
+            // if(Driver != null && Car.ObservableCarRepairSchedules.Any(x => StartDate <= x.EndDate && EndDate >= x.StartDate
+            //     && (!(excludeSchedule is CarRepairSchedule) || !x.Equals(excludeSchedule))
+            // )) {
+            //     yield return new ValidationResult(
+            //         "Выбранный период пересекается с другом периодом графика ремонта",
+            //         new[] { nameof(StartDate), nameof(EndDate) });
+            // }
         }
     }
 

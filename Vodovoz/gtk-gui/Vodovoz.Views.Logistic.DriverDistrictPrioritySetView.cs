@@ -217,6 +217,7 @@ namespace Vodovoz.Views.Logistic
 			w18.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox2 = new global::Gtk.HBox();
+			this.hbox2.WidthRequest = 700;
 			this.hbox2.Name = "hbox2";
 			this.hbox2.Spacing = 6;
 			// Container child hbox2.Gtk.Box+BoxChild

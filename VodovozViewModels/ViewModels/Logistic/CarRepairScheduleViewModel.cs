@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
 using QS.Validation;
 using QS.ViewModels;
+using Vodovoz.Data;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
@@ -18,6 +20,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
             IUnitOfWork uow,
             IValidator validator,
             ICommonServices commonServices,
+            Car car,
             INavigationManager navigation = null)
             : base(commonServices.InteractiveService, navigation)
         {
@@ -25,35 +28,32 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
                 throw new ArgumentNullException(nameof(uow));
             }
             this.validator = validator ?? throw new ArgumentNullException(nameof(validator));
+            this.car = car ?? throw new ArgumentNullException(nameof(car));
 
             Entity = entity ?? new CarRepairSchedule();
-            if(Entity.StartDate == default(DateTime)) {
-                Entity.StartDate = DateTime.Today;
-            }
-            if(Entity.EndDate == default(DateTime)) {
-                Entity.EndDate = DateTime.Today;
-            }
-            EntityToEdit = new CarRepairSchedule();
-            ReplaceDataInCarRepairSchedule(Entity, EntityToEdit);
+            InitialEntityFill();
 
-            permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(CarRepairSchedule));
+            permissionResult =
+                commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(CarRepairSchedule));
             OnPropertyChanged(nameof(CanEdit));
-            
+
             BreakdownKinds = uow.GetAll<BreakdownKind>();
 
             EntityToEdit.PropertyChanged += (sender, args) => {
-                switch(args.PropertyName) {
-                    case nameof(EntityToEdit.Car):
-                        UpdateTabName();
-                        break;
+                if(args.PropertyName == nameof(EntityToEdit.Car)) {
+                    UpdateTabName();
                 }
             };
             UpdateTabName();
         }
-        
+
+        #region Поля и свойства
+
         private readonly IValidator validator;
+        private readonly Car car;
         private readonly IPermissionResult permissionResult;
-        
+
+        public EventHandler EntityAccepted;
         public CarRepairSchedule Entity { get; }
 
         private CarRepairSchedule entityToEdit;
@@ -65,21 +65,25 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
             get => entityToEdit;
             set => SetField(ref entityToEdit, value);
         }
-        
+
         public IEnumerable<BreakdownKind> BreakdownKinds { get; }
-        
-        public EventHandler EntityAccepted;
-        public bool CanEdit => (EntityToEdit.Id == 0 && permissionResult.CanCreate) || (EntityToEdit.Id != 0 && permissionResult.CanUpdate);
+
+        public bool CanEdit => (EntityToEdit.Id == 0 && permissionResult.CanCreate)
+            || (EntityToEdit.Id != 0 && permissionResult.CanUpdate);
+
+        #endregion
 
         #region Команды
-        
+
         private DelegateCommand acceptCommand;
         public DelegateCommand AcceptCommand => acceptCommand ?? (acceptCommand = new DelegateCommand(
             () => {
                 if(!validator.Validate(
-                    EntityToEdit,
-                    new ValidationContext(
-                        EntityToEdit, new Dictionary<object, object> { { "ExcludeScheduleValidation", Entity } })
+                        EntityToEdit,
+                        new ValidationContext(
+                            EntityToEdit,
+                            new Dictionary<object, object>
+                                { { "DatePeriodOverlapValidationList", GetDatePeriodsForOverlapCheck() } })
                     )
                 ) {
                     return;
@@ -93,14 +97,38 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
         ));
 
         #endregion
-        
+
+        #region Приватные методы
+
+        private void InitialEntityFill()
+        {
+            Entity.Car = car;
+            if(Entity.StartDate == default(DateTime)) {
+                Entity.StartDate = DateTime.Today;
+            }
+            if(Entity.EndDate == default(DateTime)) {
+                Entity.EndDate = DateTime.Today;
+            }
+
+            EntityToEdit = new CarRepairSchedule();
+            ReplaceDataInCarRepairSchedule(Entity, EntityToEdit);
+        }
+
+        private object GetDatePeriodsForOverlapCheck()
+        {
+            return car.ObservableCarRepairSchedules.Where(x => x != Entity)
+                .Select(x => new DatePeriod(x.StartDate, x.EndDate));
+        }
+
         private void UpdateTabName()
         {
             if(Entity.Id == 0) {
-                TabName = "Новый график ремонта автомобиля" + (EntityToEdit.Car != null ? $" [{EntityToEdit.Car.RegistrationNumber}]" : "");
+                TabName = "Новый график ремонта автомобиля" +
+                    (EntityToEdit.Car != null ? $" [{EntityToEdit.Car.RegistrationNumber}]" : "");
             }
             else {
-                TabName = "График ремонта автомобиля " + (EntityToEdit.Car != null ? $" [{EntityToEdit.Car.RegistrationNumber}]" : "");
+                TabName = "График ремонта автомобиля " +
+                    (EntityToEdit.Car != null ? $" [{EntityToEdit.Car.RegistrationNumber}]" : "");
             }
         }
 
@@ -112,5 +140,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
             destination.StartDate = source.StartDate;
             destination.EndDate = source.EndDate;
         }
+
+        #endregion
     }
 }

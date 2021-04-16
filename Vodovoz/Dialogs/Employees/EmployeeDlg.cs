@@ -649,22 +649,22 @@ namespace Vodovoz
 				driverUnscheduledAbsence,
 				UoW,
 				new ObjectValidator(new GtkValidationViewFactory()),
-				ServicesConfig.CommonServices
+				ServicesConfig.CommonServices,
+				Entity
 			);
 			TabParent.AddSlaveTab(this, driverUnscheduledAbsenceViewModel);
 		}
 		
 		private void OpenDriverUnscheduledAbsenceCreateWindow()
 		{
-			var newDriverUnscheduledAbsence = new DriverUnscheduledAbsence {
-				Driver = Entity
-			};
+			var newDriverUnscheduledAbsence = new DriverUnscheduledAbsence();
 			
 			var driverUnscheduledAbsenceViewModel = new DriverUnscheduledAbsenceViewModel(
 				newDriverUnscheduledAbsence,
 				UoW,
 				new ObjectValidator(new GtkValidationViewFactory()),
-				ServicesConfig.CommonServices
+				ServicesConfig.CommonServices,
+				Entity
 			);
 			driverUnscheduledAbsenceViewModel.EntityAccepted += (o, eventArgs) => {
 				Entity.ObservableDriverUnscheduledAbsences.Add(newDriverUnscheduledAbsence);

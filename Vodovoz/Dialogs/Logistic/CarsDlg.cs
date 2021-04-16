@@ -245,15 +245,14 @@ namespace Vodovoz
 
 		private void OpenRepairScheduleCreateDialog()
 		{
-			var newCarRepairSchedule = new CarRepairSchedule {
-				Car = Entity
-			};
+			var newCarRepairSchedule = new CarRepairSchedule();
 
 			var carRepairScheduleViewModel = new CarRepairScheduleViewModel(
 				newCarRepairSchedule,
 				UoW,
 				new ObjectValidator(new GtkValidationViewFactory()),
-				ServicesConfig.CommonServices
+				ServicesConfig.CommonServices,
+				Entity
 			);
 			carRepairScheduleViewModel.EntityAccepted += (o, eventArgs) => {
 				Entity.ObservableCarRepairSchedules.Insert(0, newCarRepairSchedule);
@@ -272,7 +271,8 @@ namespace Vodovoz
 				carRepairSchedule,
 				UoW,
 				new ObjectValidator(new GtkValidationViewFactory()),
-				ServicesConfig.CommonServices
+				ServicesConfig.CommonServices,
+				Entity
 			);
 			TabParent.AddSlaveTab(this, carRepairScheduleViewModel);
 		}

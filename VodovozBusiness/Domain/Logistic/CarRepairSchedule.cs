@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Data;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -14,6 +15,8 @@ namespace Vodovoz.Domain.Logistic
     [HistoryTrace]
     public class CarRepairSchedule : PropertyChangedBase, IDomainObject, IValidatableObject
     {
+        #region Properties
+
         public virtual int Id { get; set; }
 
         private Car car;
@@ -51,35 +54,40 @@ namespace Vodovoz.Domain.Logistic
             set => SetField(ref breakdownKind, value);
         }
 
+        #endregion
+
+        #region IValidatableObject implementation
+
         public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
+            if(!validationContext.Items.TryGetValue("DatePeriodOverlapValidationList", out var validationListObj)
+                || !(validationListObj is IEnumerable<DatePeriod> datePeriods)
+            ) {
+                throw new ArgumentException("Не верно передан ValidationContext");
+            }
+
             if(Comment?.Length > 255) {
-                yield return new ValidationResult(
-                    "Длина комментария не должна превышать 255 символов",
+                yield return new ValidationResult("Длина комментария не должна превышать 255 символов",
                     new[] { nameof(Comment) });
             }
 
             if(Car == null) {
-                yield return new ValidationResult(
-                    "Должен быть заполнен автомобиль",
+                yield return new ValidationResult("Должен быть заполнен автомобиль",
                     new[] { nameof(Car) });
             }
 
             if(StartDate > EndDate) {
-                yield return new ValidationResult(
-                    "Начальная дата должна быть меньше или равна конечной дате",
+                yield return new ValidationResult("Начальная дата должна быть меньше или равна конечной дате",
                     new[] { nameof(StartDate), nameof(EndDate) });
             }
 
-            validationContext.Items.TryGetValue("ExcludeScheduleValidation", out var excludeSchedule);
-
-            if(Car != null && Car.ObservableCarRepairSchedules.Any(x => StartDate <= x.EndDate && EndDate >= x.StartDate
-                && (!(excludeSchedule is CarRepairSchedule) || !x.Equals(excludeSchedule))
-            )) {
+            if(datePeriods.Any(x => StartDate <= x.EndDate && EndDate >= x.StartDate)) {
                 yield return new ValidationResult(
                     "Выбранный период пересекается с другом периодом графика ремонта",
                     new[] { nameof(StartDate), nameof(EndDate) });
             }
         }
+
+        #endregion
     }
 }

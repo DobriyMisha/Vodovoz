@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Employees;
 
@@ -33,7 +34,7 @@ namespace Vodovoz.Domain.Logistic
             get => unscheduledAbsenceReason;
             set => SetField(ref unscheduledAbsenceReason, value);
         }
-        
+
         private Employee driver;
         [Display(Name = "Водитель")]
         public virtual Employee Driver {
@@ -43,6 +44,12 @@ namespace Vodovoz.Domain.Logistic
 
         public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
+            if(!validationContext.Items.TryGetValue("DateOverlapValidationList", out var validationListObj)
+                || !(validationListObj is IEnumerable<DateTime> dates)
+            ) {
+                throw new ArgumentException("Не верно передан ValidationContext");
+            }
+
             if(Comment?.Length > 255) {
                 yield return new ValidationResult(
                     "Длина комментария не должна превышать 255 символов",
@@ -52,17 +59,14 @@ namespace Vodovoz.Domain.Logistic
             if(Driver == null) {
                 yield return new ValidationResult(
                     "Должен быть заполнен водитель",
-                    new[] { nameof(Car) });
+                    new[] { nameof(Driver) });
             }
 
-            // validationContext.Items.TryGetValue("ExcludeScheduleValidation", out var excludeSchedule);
-            // if(Driver != null && Car.ObservableCarRepairSchedules.Any(x => StartDate <= x.EndDate && EndDate >= x.StartDate
-            //     && (!(excludeSchedule is CarRepairSchedule) || !x.Equals(excludeSchedule))
-            // )) {
-            //     yield return new ValidationResult(
-            //         "Выбранный период пересекается с другом периодом графика ремонта",
-            //         new[] { nameof(StartDate), nameof(EndDate) });
-            // }
+            if(dates.Any(x => x == DateTime)) {
+                yield return new ValidationResult(
+                    "На выбранную дату уже создан внеплановый выход из графика",
+                    new[] { nameof(DateTime) });
+            }
         }
     }
 
@@ -76,6 +80,7 @@ namespace Vodovoz.Domain.Logistic
 
     public class UnscheduledAbsenceReasonStringType : NHibernate.Type.EnumStringType
     {
-        public UnscheduledAbsenceReasonStringType() : base(typeof(UnscheduledAbsenceReason)) { }
+        public UnscheduledAbsenceReasonStringType() : base(typeof(UnscheduledAbsenceReason))
+        { }
     }
 }

@@ -77,7 +77,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
         private DelegateCommand acceptCommand;
         public DelegateCommand AcceptCommand => acceptCommand ?? (acceptCommand = new DelegateCommand(
             () => {
-                if(commonServices.ValidationService.Validate(
+                if(!commonServices.ValidationService.Validate(
                     EntityToEdit,
                     new ValidationContext(
                         EntityToEdit,

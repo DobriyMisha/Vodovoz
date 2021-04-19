@@ -96,8 +96,9 @@ namespace Vodovoz
 			yentryPTSNum.Binding.AddBinding(Entity, e => e.DocPTSNumber, w => w.Text).InitializeFromSource();
 			yentryPTSSeries.Binding.AddBinding(Entity, e => e.DocPTSSeries, w => w.Text).InitializeFromSource();
 			
-			// entryDriver.Changed += OnEntryDriverChanged;
-			// entryDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
+			entryDriver.SetEntityAutocompleteSelectorFactory(DriverAutocompleteSelectorFactory);
+			entryDriver.Changed += OnEntryDriverChanged;
+			entryDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 
 			dataentryFuelType.SubjectType = typeof(FuelType);
 			dataentryFuelType.Binding.AddBinding(Entity, e => e.FuelType, w => w.Subject).InitializeFromSource();
@@ -301,10 +302,13 @@ namespace Vodovoz
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.Driver != null ? x.Driver.ShortName : "-")
 					.XAlign(0.5f)
-				.AddColumn("Период")
+				.AddColumn("Начальная дата")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(
-						x => x.StartDate == x.EndDate ? $"{x.StartDate:d}" : $"{x.StartDate:d} - {x.EndDate:d}")
+					.AddTextRenderer(x => $"{x.StartDate:G}")
+					.XAlign(0.5f)
+				.AddColumn("Конечная дата")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => $"{x.EndDate:G}")
 					.XAlign(0.5f)
 				.AddColumn("")
 				.Finish();
@@ -391,6 +395,8 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
+			Entity.CheckAssignedDrivers();
+
 			var valid = new QSValidator<Car>(UoWGeneric.Root);
             if (valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel)) {
 				return false;

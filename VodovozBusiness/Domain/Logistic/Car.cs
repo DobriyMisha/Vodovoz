@@ -278,15 +278,49 @@ namespace Vodovoz.Domain.Logistic
 			observableAssignedDrivers ?? (observableAssignedDrivers =
 				new GenericObservableList<AssignedDriver>(AssignedDrivers));
 
-		#endregion
-
 		public virtual string Title => String.Format("{0} ({1})", Model, RegistrationNumber);
+		
 		public virtual bool CanEditFuelCardNumber => ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_fuel_card_number");
 
 		[Display(Name = "Имущество компании")]
 		public virtual bool IsCompanyCar => TypeOfUse.HasValue && GetCompanyHavingsTypes().Contains(TypeOfUse.Value);
+		
+		#endregion
 
+		#region Публичные методы
+		
 		public static CarTypeOfUse[] GetCompanyHavingsTypes() => new CarTypeOfUse[] { CarTypeOfUse.CompanyGAZelle, CarTypeOfUse.CompanyLargus, CarTypeOfUse.CompanyTruck };
+
+		public virtual Employee GetAssignedDriverOnDate(DateTime dateTime)
+		{
+			return ObservableAssignedDrivers.FirstOrDefault(x => x.StartDate <= dateTime && (x.EndDate == null || x.EndDate >= dateTime))?.Driver;
+		}
+		
+		public virtual void CheckAssignedDrivers()
+		{
+			var lastAssignedDriver = ObservableAssignedDrivers.Any() ? ObservableAssignedDrivers.OrderByDescending(x => x.StartDate).First() : null;
+			if(lastAssignedDriver?.Driver == Driver && lastAssignedDriver != null && lastAssignedDriver.EndDate == null) {
+				return;
+			}
+
+			var currentTime = DateTime.Now;
+			if(lastAssignedDriver != null) {
+				lastAssignedDriver.EndDate = currentTime;
+			}
+
+			if(Driver == null) {
+				return;
+			}
+			
+			var newAssignedDriver = new AssignedDriver {
+				Car = this,
+				Driver = Driver,
+				StartDate = currentTime.AddSeconds(1)
+			};
+			ObservableAssignedDrivers.Add(newAssignedDriver);
+		}
+
+		#endregion
 
 		public Car()
 		{
@@ -296,7 +330,7 @@ namespace Vodovoz.Domain.Logistic
 
 		#region IValidatableObject implementation
 
-		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(string.IsNullOrWhiteSpace(Model))
 				yield return new ValidationResult("Модель автомобиля должна быть заполнена", new[] { "Model" });

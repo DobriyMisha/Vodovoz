@@ -41,9 +41,9 @@ namespace Vodovoz.Domain.Logistic
             set => SetField(ref startDate, value);
         }
 
-        private DateTime endDate;
+        private DateTime? endDate;
         [Display(Name = "Конечная дата")]
-        public virtual DateTime EndDate {
+        public virtual DateTime? EndDate {
             get => endDate;
             set => SetField(ref endDate, value);
         }

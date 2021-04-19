@@ -117,7 +117,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
         private object GetDatePeriodsForOverlapCheck()
         {
             return car.ObservableAssignedDrivers.Where(x => x != Entity)
-                .Select(x => new DatePeriod(x.StartDate, x.EndDate));
+                .Select(x => new DatePeriod(x.StartDate, x.EndDate ?? DateTime.MaxValue));
         }
 
         private void UpdateTabName()

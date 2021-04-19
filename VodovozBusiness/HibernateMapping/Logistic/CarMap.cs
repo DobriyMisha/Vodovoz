@@ -46,7 +46,7 @@ namespace Vodovoz.HibernateMapping
 				.KeyColumn("car_id").OrderBy("end_date DESC");
 			
 			HasMany(x => x.AssignedDrivers).Cascade.AllDeleteOrphan().Inverse()
-				.KeyColumn("car_id").OrderBy("end_date DESC");
+				.KeyColumn("car_id").OrderBy("start_date DESC");
 
 			HasManyToMany(x => x.GeographicGroups)
 				.Table("geographic_groups_to_entities")

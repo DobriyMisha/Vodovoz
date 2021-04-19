@@ -1206,7 +1206,7 @@ namespace Vodovoz
 			this.ybuttonAddRepairSchedule.CanFocus = true;
 			this.ybuttonAddRepairSchedule.Name = "ybuttonAddRepairSchedule";
 			this.ybuttonAddRepairSchedule.UseUnderline = true;
-			this.ybuttonAddRepairSchedule.Label = global::Mono.Unix.Catalog.GetString("Создать");
+			this.ybuttonAddRepairSchedule.Label = global::Mono.Unix.Catalog.GetString("Добавить");
 			global::Gtk.Image w88 = new global::Gtk.Image();
 			w88.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-new", global::Gtk.IconSize.Menu);
 			this.ybuttonAddRepairSchedule.Image = w88;
@@ -1339,7 +1339,7 @@ namespace Vodovoz
 			// Container child vboxAssignedDrivers.Gtk.Box+BoxChild
 			this.ylabel2 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabel2.Name = "ylabel2";
-			this.ylabel2.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Привязанные водители</b>");
+			this.ylabel2.LabelProp = global::Mono.Unix.Catalog.GetString("<b>История привязанных водителей</b>");
 			this.ylabel2.UseMarkup = true;
 			this.vboxAssignedDrivers.Add(this.ylabel2);
 			global::Gtk.Box.BoxChild w107 = ((global::Gtk.Box.BoxChild)(this.vboxAssignedDrivers[this.ylabel2]));

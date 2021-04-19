@@ -1595,6 +1595,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.BreakdownKindJournalFilterView.cs" />
     <Compile Include="Views\Logistic\DriverUnscheduledAbsenceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverUnscheduledAbsenceView.cs" />
+    <Compile Include="Views\Logistic\AssignedDriverView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.AssignedDriverView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

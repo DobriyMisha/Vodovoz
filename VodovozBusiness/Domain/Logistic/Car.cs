@@ -265,6 +265,18 @@ namespace Vodovoz.Domain.Logistic
 		public virtual GenericObservableList<CarRepairSchedule> ObservableCarRepairSchedules =>
 			observableCarRepairSchedules ?? (observableCarRepairSchedules =
 				new GenericObservableList<CarRepairSchedule>(CarRepairSchedules));
+		
+		private IList<AssignedDriver> assignedDrivers = new List<AssignedDriver>();
+		[Display(Name = "Привязанные водители")]
+		public virtual IList<AssignedDriver> AssignedDrivers {
+			get => assignedDrivers;
+			set => SetField(ref assignedDrivers, value);
+		}
+
+		private GenericObservableList<AssignedDriver> observableAssignedDrivers;
+		public virtual GenericObservableList<AssignedDriver> ObservableAssignedDrivers =>
+			observableAssignedDrivers ?? (observableAssignedDrivers =
+				new GenericObservableList<AssignedDriver>(AssignedDrivers));
 
 		#endregion
 

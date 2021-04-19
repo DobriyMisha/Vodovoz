@@ -18,7 +18,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
         public CarRepairScheduleViewModel(
             CarRepairSchedule entity,
             IUnitOfWork uow,
-            IValidator validator,
             ICommonServices commonServices,
             Car car,
             INavigationManager navigation = null)
@@ -27,7 +26,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
             if(uow == null) {
                 throw new ArgumentNullException(nameof(uow));
             }
-            this.validator = validator ?? throw new ArgumentNullException(nameof(validator));
+            this.commonServices = commonServices;
             this.car = car ?? throw new ArgumentNullException(nameof(car));
 
             Entity = entity ?? new CarRepairSchedule();
@@ -49,7 +48,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
         #region Поля и свойства
 
-        private readonly IValidator validator;
+        private readonly ICommonServices commonServices;
         private readonly Car car;
         private readonly IPermissionResult permissionResult;
 
@@ -78,17 +77,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
         private DelegateCommand acceptCommand;
         public DelegateCommand AcceptCommand => acceptCommand ?? (acceptCommand = new DelegateCommand(
             () => {
-                if(!validator.Validate(
+                if(commonServices.ValidationService.Validate(
+                    EntityToEdit,
+                    new ValidationContext(
                         EntityToEdit,
-                        new ValidationContext(
-                            EntityToEdit,
-                            new Dictionary<object, object>
-                                { { "DatePeriodOverlapValidationList", GetDatePeriodsForOverlapCheck() } })
-                    )
-                ) {
+                        new Dictionary<object, object>
+                            { { "DatePeriodOverlapValidationList", GetDatePeriodsForOverlapCheck() } }))) {
                     return;
                 }
-
+                
                 ReplaceDataInCarRepairSchedule(EntityToEdit, Entity);
                 Close(false, CloseSource.Self);
                 EntityAccepted?.Invoke(this, EventArgs.Empty);

@@ -1,6 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Logistic;
-using VodovozInfrastructure.Utils.NHibernate.Collections;
 
 namespace Vodovoz.HibernateMapping
 {
@@ -44,6 +43,9 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.DriverCarKind)   .Column("driver_car_kind_id");
 
 			HasMany(x => x.CarRepairSchedules).Cascade.AllDeleteOrphan().Inverse()
+				.KeyColumn("car_id").OrderBy("end_date DESC");
+			
+			HasMany(x => x.AssignedDrivers).Cascade.AllDeleteOrphan().Inverse()
 				.KeyColumn("car_id").OrderBy("end_date DESC");
 
 			HasManyToMany(x => x.GeographicGroups)

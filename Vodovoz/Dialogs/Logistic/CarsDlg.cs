@@ -30,6 +30,22 @@ namespace Vodovoz
 
 		private ICarRepository carRepository;
 
+		private IEntityAutocompleteSelectorFactory driverAutocompleteSelectorFactory;
+		public IEntityAutocompleteSelectorFactory DriverAutocompleteSelectorFactory =>
+			driverAutocompleteSelectorFactory ?? (driverAutocompleteSelectorFactory =
+				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(
+					typeof(Employee),
+					() => new EmployeesJournalViewModel(
+						new EmployeeFilterViewModel {
+							RestrictCategory = EmployeeCategory.driver,
+							Status = EmployeeStatus.IsWorking
+						},
+						UnitOfWorkFactory.GetDefaultFactory,
+						ServicesConfig.CommonServices
+					)
+				)
+			);
+
 		public override bool HasChanges => UoWGeneric.HasChanges || attachmentFiles.HasChanges;
 
 		public CarsDlg()
@@ -80,17 +96,8 @@ namespace Vodovoz
 			yentryPTSNum.Binding.AddBinding(Entity, e => e.DocPTSNumber, w => w.Text).InitializeFromSource();
 			yentryPTSSeries.Binding.AddBinding(Entity, e => e.DocPTSSeries, w => w.Text).InitializeFromSource();
 			
-			var employeeFilter = new EmployeeFilterViewModel {
-				RestrictCategory = EmployeeCategory.driver,
-				Status = EmployeeStatus.IsWorking
-			};
-			entryDriver.SetEntityAutocompleteSelectorFactory(
-				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(
-					typeof(Employee),
-					() => new EmployeesJournalViewModel(employeeFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices))
-				);
-			entryDriver.Changed += OnEntryDriverChanged;
-			entryDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
+			// entryDriver.Changed += OnEntryDriverChanged;
+			// entryDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 
 			dataentryFuelType.SubjectType = typeof(FuelType);
 			dataentryFuelType.Binding.AddBinding(Entity, e => e.FuelType, w => w.Subject).InitializeFromSource();
@@ -157,6 +164,7 @@ namespace Vodovoz
 			yTreeGeographicGroups.ItemsDataSource = Entity.ObservableGeographicGroups;
 
 			ConfigureCarRepairSchedules();
+			ConfigureAssignedDrivers();
 			
 			UpdateSensitivity();
 		}
@@ -233,14 +241,8 @@ namespace Vodovoz
 			if(!(ytreeRepairSchedules.GetSelectedObject() is CarRepairSchedule carRepairSchedule)) {
 				return;
 			}
-
-			if(carRepairSchedule.Id == 0) {
-				Entity.ObservableCarRepairSchedules.Remove(carRepairSchedule);
-			}
-			else {
-				Entity.ObservableCarRepairSchedules.Remove(carRepairSchedule);
-				UoW.Delete(carRepairSchedule);
-			}
+			
+			Entity.ObservableCarRepairSchedules.Remove(carRepairSchedule);
 		}
 
 		private void OpenRepairScheduleCreateDialog()
@@ -250,7 +252,6 @@ namespace Vodovoz
 			var carRepairScheduleViewModel = new CarRepairScheduleViewModel(
 				newCarRepairSchedule,
 				UoW,
-				new ObjectValidator(new GtkValidationViewFactory()),
 				ServicesConfig.CommonServices,
 				Entity
 			);
@@ -270,13 +271,120 @@ namespace Vodovoz
 			var carRepairScheduleViewModel = new CarRepairScheduleViewModel(
 				carRepairSchedule,
 				UoW,
-				new ObjectValidator(new GtkValidationViewFactory()),
 				ServicesConfig.CommonServices,
 				Entity
 			);
 			TabParent.AddSlaveTab(this, carRepairScheduleViewModel);
 		}
 		
+		#endregion
+
+		#region AssignedDrivers
+
+		private IPermissionResult assignedDriverPermissionResult;
+
+		private void ConfigureAssignedDrivers()
+		{
+			assignedDriverPermissionResult =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(AssignedDriver));
+			
+			ytreeAssignedDrivers.ColumnsConfig = FluentColumnsConfig<AssignedDriver>.Create()
+				.AddColumn("Код")
+					.HeaderAlignment(0.5f)
+					.MinWidth(75)
+					.AddTextRenderer(x => x.Id == 0 ? "Новый" : x.Id.ToString())
+					.XAlign(0.5f)
+					.AddSetter((c, n) => {
+						c.ForegroundGdk = n.Id == 0 ? colorGreen : colorBlack;
+					})
+				.AddColumn("Водитель")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.Driver != null ? x.Driver.ShortName : "-")
+					.XAlign(0.5f)
+				.AddColumn("Период")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(
+						x => x.StartDate == x.EndDate ? $"{x.StartDate:d}" : $"{x.StartDate:d} - {x.EndDate:d}")
+					.XAlign(0.5f)
+				.AddColumn("")
+				.Finish();
+			
+			ytreeAssignedDrivers.RowActivated += (o, args) => {
+				if(ytreeAssignedDrivers.GetSelectedObject() != null
+					&& (assignedDriverPermissionResult.CanUpdate || assignedDriverPermissionResult.CanRead)) {
+					OpenAssignedDriverEditDialog();
+				}
+			};
+			
+			ytreeAssignedDrivers.ItemsDataSource = Entity.ObservableAssignedDrivers;
+			
+			ybuttonDeleteAssignedDriver.Sensitive = false;
+			ybuttonDeleteAssignedDriver.Clicked += OnButtonDeleteAssignedDriverClicked;
+			
+			ybuttonEditAssignedDriver.Sensitive = false;
+			ybuttonEditAssignedDriver.Clicked += (sender, args) => OpenAssignedDriverEditDialog();
+			
+			ytreeAssignedDrivers.Selection.Changed += (o, args) => {
+				var selectedAssignedDriver = ytreeAssignedDrivers.GetSelectedObject<AssignedDriver>();
+
+				ybuttonDeleteAssignedDriver.Sensitive =
+					selectedAssignedDriver != null
+					&& (
+						assignedDriverPermissionResult.CanCreate && selectedAssignedDriver.Id == 0
+						|| assignedDriverPermissionResult.CanDelete
+					);
+
+				ybuttonEditAssignedDriver.Sensitive = selectedAssignedDriver != null
+					&& (assignedDriverPermissionResult.CanUpdate || assignedDriverPermissionResult.CanRead);
+			};
+
+			ybuttonAddAssignedDriver.Clicked += (sender, args) => OpenAssignedDriverCreateDialog();
+			ybuttonAddAssignedDriver.Sensitive = assignedDriverPermissionResult.CanCreate;
+		}
+
+		private void OpenAssignedDriverEditDialog()
+		{
+			if(!(ytreeAssignedDrivers.GetSelectedObject() is AssignedDriver assignedDriver)) {
+				return;
+			}
+
+			var assignedDriverViewModel = new AssignedDriverViewModel(
+				assignedDriver,
+				DriverAutocompleteSelectorFactory,
+				Entity,
+				UoW,
+				ServicesConfig.CommonServices
+			);
+			TabParent.AddSlaveTab(this, assignedDriverViewModel);
+		}
+
+		private void OpenAssignedDriverCreateDialog()
+		{
+			var newAssignedDriver = new AssignedDriver();
+
+			var assignedDriverViewModel = new AssignedDriverViewModel(
+				newAssignedDriver,
+				DriverAutocompleteSelectorFactory,
+				Entity,
+				UoW,
+				ServicesConfig.CommonServices
+			);
+			assignedDriverViewModel.EntityAccepted += (o, eventArgs) => {
+				Entity.ObservableAssignedDrivers.Insert(0, newAssignedDriver);
+			};
+
+			TabParent.AddSlaveTab(this, assignedDriverViewModel);
+		}
+		
+		private void OnButtonDeleteAssignedDriverClicked(object sender, EventArgs args)
+		{
+			if(!(ytreeAssignedDrivers.GetSelectedObject() is AssignedDriver assignedDriver)) {
+				return;
+			}
+
+			Entity.ObservableAssignedDrivers.Remove(assignedDriver);
+		}
+
 		#endregion
 
 		bool CarTypeIsEditable() => Entity.Id == 0;
@@ -310,9 +418,9 @@ namespace Vodovoz
 				notebook1.CurrentPage = 0;
 		}
 
-		protected void OnRadioBtnGeographicGroupsToggled(object sender, EventArgs e)
+		protected void OnRadioBtnAdditionalToggled(object sender, EventArgs e)
 		{
-			if(radioBtnGeographicGroups.Active)
+			if(radioBtnAdditional.Active)
 				notebook1.CurrentPage = 1;
 		}
 

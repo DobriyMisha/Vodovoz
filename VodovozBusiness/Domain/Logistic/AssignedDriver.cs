@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Data;
 using Vodovoz.Domain.Employees;
@@ -14,10 +15,11 @@ namespace Vodovoz.Domain.Logistic
         NominativePlural = "Привязанные водители"
     )]
     [HistoryTrace]
+    [EntityPermission]
     public class AssignedDriver : PropertyChangedBase, IDomainObject, IValidatableObject
     {
         public virtual int Id { get; set; }
-        
+
         private Car car;
         [Display(Name = "Автомобиль")]
         public virtual Car Car {
@@ -45,7 +47,7 @@ namespace Vodovoz.Domain.Logistic
             get => endDate;
             set => SetField(ref endDate, value);
         }
-        
+
         public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if(!validationContext.Items.TryGetValue("DatePeriodOverlapValidationList", out var validationListObj)
@@ -58,7 +60,7 @@ namespace Vodovoz.Domain.Logistic
                 yield return new ValidationResult("Должен быть заполнен автомобиль",
                     new[] { nameof(Car) });
             }
-            
+
             if(Driver == null) {
                 yield return new ValidationResult("Должен быть заполнен водитель",
                     new[] { nameof(Driver) });

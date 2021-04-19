@@ -4,7 +4,7 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
 {
-    public partial class AssignedDriverView  : TabViewBase<AssignedDriverViewModel>
+    public partial class AssignedDriverView : TabViewBase<AssignedDriverViewModel>
     {
         public AssignedDriverView(AssignedDriverViewModel viewModel) : base(viewModel)
         {
@@ -18,9 +18,10 @@ namespace Vodovoz.Views.Logistic
 
             ybuttonAccept.Sensitive = ViewModel.CanEdit;
             ybuttonAccept.Clicked += (sender, args) => ViewModel.AcceptCommand.Execute();
-            
+
             entryDriver.SetEntityAutocompleteSelectorFactory(ViewModel.EntityAutocompleteSelectorFactory);
-            entryDriver.Binding.AddBinding(ViewModel.EntityToEdit, e => e.Driver, w => w.Subject).InitializeFromSource();
+            entryDriver.Binding.AddBinding(ViewModel.EntityToEdit, e => e.Driver, w => w.Subject)
+                .InitializeFromSource();
             entryDriver.Sensitive = ViewModel.CanEdit;
 
             datepicker.Binding.AddBinding(ViewModel.EntityToEdit, e => e.StartDate, w => w.StartDate).InitializeFromSource();

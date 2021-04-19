@@ -35,7 +35,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
             InitialEntityFill();
 
             permissionResult =
-                commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(CarRepairSchedule));
+                commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(AssignedDriver));
             OnPropertyChanged(nameof(CanEdit));
 
             EntityToEdit.PropertyChanged += (sender, args) => {
@@ -54,6 +54,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
         private readonly IPermissionResult permissionResult;
 
         public EventHandler EntityAccepted;
+        public IUnitOfWork UoW { get; }
         public AssignedDriver Entity { get; }
 
         private AssignedDriver entityToEdit;
@@ -86,7 +87,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
                     return;
                 }
 
-                ReplaceDataInCarRepairSchedule(EntityToEdit, Entity);
+                ReplaceDataInAssignedDriver(EntityToEdit, Entity);
 
                 Close(false, CloseSource.Self);
                 EntityAccepted?.Invoke(this, EventArgs.Empty);
@@ -110,7 +111,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
             }
 
             EntityToEdit = new AssignedDriver();
-            ReplaceDataInCarRepairSchedule(Entity, EntityToEdit);
+            ReplaceDataInAssignedDriver(Entity, EntityToEdit);
         }
 
         private object GetDatePeriodsForOverlapCheck()
@@ -135,7 +136,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
             }
         }
 
-        private void ReplaceDataInCarRepairSchedule(AssignedDriver source, AssignedDriver destination)
+        private void ReplaceDataInAssignedDriver(AssignedDriver source, AssignedDriver destination)
         {
             destination.Car = source.Car;
             destination.Driver = source.Driver;
@@ -144,7 +145,5 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
         }
 
         #endregion
-
-        public IUnitOfWork UoW { get; }
     }
 }

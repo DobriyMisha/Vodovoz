@@ -8,9 +8,9 @@ namespace Vodovoz.HibernateMapping.Logistic
         public AssignedDriverMap()
         {
             Table("assigned_drivers");
-            
+
             Id(x => x.Id).Column("id").GeneratedBy.Native();
-            
+
             Map(x => x.StartDate).Column("start_date");
             Map(x => x.EndDate).Column("end_date");
 

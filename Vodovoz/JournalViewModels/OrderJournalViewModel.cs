@@ -25,10 +25,14 @@ using QS.Project.Journal.DataLoader;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Services;
 using QS.Tdi;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -747,14 +751,28 @@ namespace Vodovoz.JournalViewModels
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
 						var order = UoW.GetById<VodovozOrder>(selectedNodes.FirstOrDefault().Id);
-						UndeliveriesView dlg = new UndeliveriesView();
+						/*UndeliveriesView dlg = new UndeliveriesView();
 						dlg.HideFilterAndControls();
 						dlg.UndeliveredOrdersFilter.SetAndRefilterAtOnce(
 							x => x.ResetFilter(),
 							x => x.RestrictOldOrder = order,
 							x => x.RestrictOldOrderStartDate = order.DeliveryDate,
 							x => x.RestrictOldOrderEndDate = order.DeliveryDate
-						);
+						);*/
+						//ДОДЕЛАТЬ!!!
+						var undeliveredOrdersEventFilter = new UndeliveredOrdersFilterViewModel( commonServices, new OrderSelectorFactory(), new EmployeeJournalFactory(), new CounterpartyJournalFactory(), new DeliveryPointJournalFactory(), new SubdivisionJournalFactory())
+						{
+							HidenByDefault = true,
+							RestrictOldOrder = order,
+							RestrictOldOrderStartDate = order.DeliveryDate,
+							RestrictOldOrderEndDate = order.DeliveryDate
+						};
+
+						var dlg = new UndeliveredOrdersJournalViewModel(
+							undeliveredOrdersEventFilter,
+							QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
+							ServicesConfig.CommonServices);
+
 						MainClass.MainWin.TdiMain.AddTab(dlg);
 					}
 				)

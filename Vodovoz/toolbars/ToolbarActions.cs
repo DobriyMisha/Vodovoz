@@ -80,6 +80,8 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.TempAdapters;
 
 public partial class MainWindow : Window
 {
@@ -1003,7 +1005,32 @@ public partial class MainWindow : Window
 
 	void ActionUndeliveredOrdersActivated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
+		IDeliveryPointJournalFactory deliveryPointJournalFactory = new DeliveryPointJournalFactory();
+		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory();
+		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
+		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
+		IJournalFilter employeeJournalFilter = new EmployeeFilterViewModel()
+		{
+			RestrictCategory = EmployeeCategory.driver,
+			Status = EmployeeStatus.IsWorking
+		};
+		IJournalFilter oldOrderAuthorJournalFilter = new EmployeeFilterViewModel()
+		{
+			RestrictCategory = EmployeeCategory.office,
+			Status = EmployeeStatus.IsWorking
+		};
+		IJournalFilter subdivisionJournalFilter = new SubdivisionFilterViewModel()
+		{
+			SubdivisionType = SubdivisionType.Default
+		};
+		var undeliveredOrdersEventFilter = new UndeliveredOrdersFilterViewModel(ServicesConfig.CommonServices, new OrderSelectorFactory(), employeeJournalFactory, counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionJournalFactory, employeeJournalFilter, oldOrderAuthorJournalFilter, subdivisionJournalFilter) { HidenByDefault = true };
+
+		tdiMain.OpenTab(() => new UndeliveredOrdersJournalViewModel(
+			undeliveredOrdersEventFilter,
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices)
+		);
+		/*tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<UndeliveriesView>(),
 			() => {
 				var view = new UndeliveriesView {
@@ -1011,7 +1038,7 @@ public partial class MainWindow : Window
 				};
 				return view;
 			}
-		);
+		);*/
 	}
 
 	void ActionResidueActivated(object sender, System.EventArgs e)

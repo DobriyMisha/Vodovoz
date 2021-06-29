@@ -56,8 +56,8 @@ namespace Vodovoz.JournalFilters
 			dateperiodOldOrderDate.EndDateOrNull = DateTime.Today.AddMonths(1);
 			chkProblematicCases.Toggled += (sender, e) => {
 				if(chkProblematicCases.Active) {
-					yEnumCMBGuilty.SelectedItemOrNull = null;
-					ySpecCMBGuiltyDep.Visible = lblGuiltyDep.Visible = false;
+					//yEnumCMBGuilty.SelectedItemOrNull = null;
+					//ySpecCMBGuiltyDep.Visible = lblGuiltyDep.Visible = false;
 				}
 				yEnumCMBGuilty.Sensitive = !chkProblematicCases.Active;
 				OnRefiltered();
